@@ -69,14 +69,17 @@ void abrirBanco(Cliente **listaClientes, int *qtdClientes)
 }
 
 void emitirHistorico(
-    int qtdClientes,
-    Cliente *listaClientesAptosEmprestimo,
-    int qtdClientesAptosEmprestimo,
-    Cliente *listaClientesSaldoNegativo,
-    int qtdClientesNegativos,
-    Cliente *listaClientesAptosCompraTitulos,
-    int qtdClientesAptosCompraTitulos,
-    float saldoBanco)
+  Cliente *listaClientes,
+  int qtdClientes,
+  Cliente *listaClientesAptosEmprestimo,
+  int qtdClientesAptosEmprestimo,
+  Cliente *listaClientesSaldoNegativo,
+  int qtdClientesNegativos,
+  Cliente *listaClientesAptosCompraTitulos,
+  int qtdClientesAptosCompraTitulos,
+  float saldoBanco,
+  int realizouSorteio
+)
 {
   printf("\n== Saldo Total do banco ==\n");
   printf("%d | R$ %.2f\n", qtdClientes, saldoBanco);
@@ -118,6 +121,41 @@ void emitirHistorico(
   }
 
   printf("\n== Cliente Contemplado no Sorteio ==\n");
+  if(realizouSorteio == 1)
+  {
+    int temGanhador = 0;
+    int temParticipante = 0;
+    for (int i = 0; i < qtdClientes; i++)
+    {
+      if (listaClientes[i].comprouTitulo == 1) temParticipante = 1;
+      if (listaClientes[i].premioSorteio > 0)
+      {
+        printf(
+          "Contemplado: %s | %d-0%d | Premio R$ %.2f\n",
+          listaClientes[i].nome,
+          listaClientes[i].numeroConta,
+          CONTA_SALARIO,
+          listaClientes[i].premioSorteio
+        );
+        temGanhador = 1;
+        temParticipante = 1;
+      }
+    }
+
+    if(!temParticipante)
+    {
+      printf("Nao houve participantes para o sorteio!\n");
+    }
+
+    if (temParticipante == 1 && !temGanhador)
+    {
+      printf("Nenhum contemplado neste sorteio\n");
+    }
+  }
+  else
+  {
+    printf("Sorteio Nao Realizado\n");
+  }
 }
 
 int validarTipoConta(TipoConta tipo)
@@ -219,13 +257,11 @@ void cadastrarCliente(Cliente *listaClientes, int *qtdClientes, int indiceAtual)
         novoCliente.contas[1].saldo = 0;
       }
     } while (!validarTiposConta(novoCliente));
-    
-    novoCliente.fezEmprestimo = 0;
+
     listaClientes[i] = novoCliente;
     printf("Cliente Cadastrado com sucesso!\n");
   }
 }
-
 
 float calcularSaldoBanco(Cliente *listaClientes, int qtdClientes)
 {
@@ -425,26 +461,166 @@ int atualizarHistoricos(
   return 1;
 }
 
-char *nomeTipoConta(TipoConta tipo)
+void efetuarSorteio(Cliente *listaClientes, int qtdClientes)
 {
-  switch (tipo)
+  int qtdParticipantes = 0;
+  int indiceVencedor = -1;
+  int maiorSomaPrima = -1;
+  
+  for (int i = 0; i < qtdClientes; i++)
   {
-  case CONTA_CORRENTE:
-    return "Conta Corrente";
-  case CONTA_POUPANCA:
-    return "Conta Poupanca";
-  case CONTA_SALARIO:
-    return "Conta Salario";
-  default:
-    return "Desconhecida";
+    listaClientes[i].premioSorteio = 0.0f;
+    if (listaClientes[i].comprouTitulo == 1)
+    {
+      qtdParticipantes++;
+    }
+  }
+  
+  if (!qtdParticipantes)
+  {
+    printf("Nao houve participantes para o sorteio!\n");
+    return;
+  }
+  
+  int *indiceParticipantesSorteio = (int *) malloc(sizeof(int) * qtdParticipantes);
+  int indiceAtual = 0;
+  
+  if(indiceParticipantesSorteio == NULL)
+  {
+    printf("[ERRO]: erro ao alocar memoria dos participantes\n");
+    return;
+  }
+  
+  for(int i = 0; i < qtdClientes; i++)
+  {
+    if(listaClientes[i].comprouTitulo == 1)
+    {
+      indiceParticipantesSorteio[indiceAtual] = i;
+      indiceAtual++;
+    }
+  }
+  
+  ordernarOrdemDecrescenteSaldoContaSalario(listaClientes, qtdParticipantes, indiceParticipantesSorteio);
+
+  int qtdFinal = qtdParticipantes;
+
+  if(qtdFinal > 5) qtdFinal = 5;
+
+  for (int i = 0; i < qtdFinal; i++)
+  {
+    int aposta = rand() % 15 + 1;
+    int soma = somaFibonacci(aposta);
+    if (ehPrimo(soma))
+    {
+      if (soma > maiorSomaPrima)
+      {
+        maiorSomaPrima = soma;
+        indiceVencedor = i;
+      }
+    }
+  }
+
+  if (indiceVencedor == -1)
+  {
+    printf("Nenhum contemplado neste sorteio\n");
+  }
+  else
+  {
+    int indiceReal = indiceParticipantesSorteio[indiceVencedor];
+    float saldoSalario = buscaSaldoClientePorTipo(listaClientes[indiceReal], CONTA_SALARIO);
+    float premio = 10 * saldoSalario;
+
+    for (int i = 0; i < listaClientes[indiceReal].qtdContas; i++)
+    {
+      if (listaClientes[indiceReal].contas[i].tipo == CONTA_SALARIO)
+      {
+        listaClientes[indiceReal].contas[i].saldo += premio;
+      }
+    }
+
+    listaClientes[indiceReal].premioSorteio = premio;
+
+    printf(
+      "Contemplado: %s | %d-0%d | Premio R$ %.2f\n",
+      listaClientes[indiceReal].nome,
+      listaClientes[indiceReal].numeroConta,
+      CONTA_SALARIO,
+      premio
+    );
+  }
+  
+
+  free(indiceParticipantesSorteio);
+}
+
+void ordernarOrdemDecrescenteSaldoContaSalario(Cliente *listaClientes, int qtdParticipantes, int *listaIndicesParticipantes)
+{
+  for (int i = 0; i < qtdParticipantes - 1; i++)
+  {
+    int trocou = 0;
+    for(int j = 0; j < qtdParticipantes - 1 - i; j++)
+    {
+      float saldoClienteAtual = buscaSaldoClientePorTipo(listaClientes[listaIndicesParticipantes[j]], CONTA_SALARIO);
+      float saldoProximoCliente = buscaSaldoClientePorTipo(listaClientes[listaIndicesParticipantes[j + 1]], CONTA_SALARIO);
+
+      if (saldoClienteAtual < saldoProximoCliente)
+      {
+        int aux = listaIndicesParticipantes[j];
+        listaIndicesParticipantes[j] = listaIndicesParticipantes[j + 1];
+        listaIndicesParticipantes[j + 1] = aux;
+        trocou = 1;
+      }
+    }
+    if (!trocou) break;
   }
 }
 
-char *nomeFezEmprestimo(int valor)
+int fibonacci(int posicao)
 {
-  if (valor == 1)
-    return "Sim";
-  return "Nao";
+  if (posicao == 1)
+  {
+    return 0;
+  }
+  if (posicao == 2)
+  {
+    return 1;
+  }
+  return fibonacci(posicao - 1) + fibonacci(posicao - 2);
+}
+
+int somaFibonacci(int valor)
+{
+  int resultado = 0;
+  for (int i = 1; i <= valor; i++)
+  {
+    resultado += fibonacci(i);
+  }
+  return resultado;
+}
+
+int ehPrimo(int numero)
+{
+  if (numero <= 1)
+  {
+    return 0;
+  }
+  for (int i = 2; i < numero; i++)
+  {
+    if (numero % i == 0)
+    {
+      return 0;
+    }
+  }
+  return 1;
+}
+
+char converterMinuscula(char letra)
+{
+  if (letra >= 'A' && letra <= 'Z')
+  {
+    return letra + 32;
+  }
+  return letra;
 }
 
 void limparBuffer()
