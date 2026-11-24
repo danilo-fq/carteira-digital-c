@@ -35,7 +35,7 @@ typedef struct {
 
 void abrirBanco(Cliente **listaClientes, int *qtdClientes);
 
-void emitirRelatorio(
+void emitirHistorico(
   int qtdClientes,
   Cliente *listaClientesAptosEmprestimo,
   int qtdClientesAptosEmprestimo,
@@ -46,7 +46,7 @@ void emitirRelatorio(
   float saldoBanco
 );
 
-int atualizarRelatorios(
+int atualizarHistoricos(
   Cliente *listaClientes,
   int qtdClientes,
   Cliente **listaClientesAptosEmprestimo,
