@@ -630,3 +630,20 @@ void limparBuffer()
   while ((c = getchar()) != '\n' && c != EOF)
     ;
 }
+
+void limparTela()
+{
+#ifdef _WIN32
+  system("cls");
+#else
+  system("clear");
+#endif
+}
+
+void pausar()
+{
+  int c;
+  printf("\nPressione Enter para continuar...");
+  while ((c = getchar()) != '\n' && c != EOF)
+    ;
+}

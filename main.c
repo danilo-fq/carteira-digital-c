@@ -64,6 +64,7 @@ int main()
     listaClientes[i] = clientesTeste[i];
   }
 
+  limparTela();
   printf("\n===ABRINDO APLICATIVO===\n");
 
   /*Adicionei um loop while para controle dos dois menus de cliente e funcionario , para que navegue entre os tipos de usuarios,
@@ -73,6 +74,7 @@ int main()
   while (1)
   {
     int opcaoMenuPrincipal;
+    limparTela();
     printf("\n=== MENU PRINCIPAL ===\n");
     printf("1 - Funcionario\n");
     printf("2 - Cliente\n");
@@ -86,12 +88,15 @@ int main()
 
       do
       {
+        limparTela();
+        printf("\n=== MENU FUNCIONARIO ===\n");
         printf("\na - Abrir Banco\n");
         printf("r - Emitir Relatorio\n");
         printf("s - Efetuar Sorteio\n");
         printf("x - Sair\n");
         printf("\nEscolha uma opcao: ");
         scanf(" %c", &opcaoFuncionario);
+        limparBuffer();
         opcaoFuncionario = converterMinuscula(opcaoFuncionario);
         switch (opcaoFuncionario)
         {
@@ -132,6 +137,7 @@ int main()
           }
           printf("\n=== ENCERRANDO CONSULTA ===\n");
           printf("Voltando para o menu inicial...\n");
+          pausar();
           break;
         }
         case 's':
@@ -141,6 +147,7 @@ int main()
           realizouSorteio = 1;
           printf("\n=== ENCERRANDO SORTEIO ===\n");
           printf("Voltando para o menu inicial...\n");
+          pausar();
           break;
         }
         case 'x':
@@ -157,6 +164,7 @@ int main()
 
       do
       {
+        limparTela();
         atualizarHistoricos(
             listaClientes,
             qtdClientes,
@@ -167,6 +175,7 @@ int main()
             &listaClientesAptosCompraTitulos,
             &qtdClientesAptosCompraTitulos);
         printf("\nBem-vindo, cliente!\n");
+        printf("\n=== MENU CLIENTE ===\n");
         printf("\na - Acessar Conta\n");
         printf("x - Sair\n");
         printf("\nEscolha uma opcao: ");
@@ -180,6 +189,7 @@ int main()
           printf("Digite o numero da sua conta: ");
           int numeroConta;
           scanf("%d", &numeroConta);
+          limparBuffer();
 
           int achouNegativado = 0;
 
@@ -212,6 +222,7 @@ int main()
             printf("\nConta %d nao encontrada na lista de negativados.\n", numeroConta);
           }
 
+          pausar();
           break;
         }
 
