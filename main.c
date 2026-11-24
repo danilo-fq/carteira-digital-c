@@ -54,7 +54,7 @@ int main()
   int qtdClientes = 0;
   int qtdClientesAptosEmprestimo = 0;
   int qtdClientesNegativos = 0;
-  int qtdClientesContaSalarioFaixaSaldo = 0;
+  int qtdClientesAptosCompraTitulos = 0;
   char opcaoFuncionario = 's';
   char opcaoCliente = 's';
 
@@ -118,7 +118,7 @@ int main()
               &listaClientesSaldoNegativo,
               &qtdClientesNegativos,
               &listaClientesAptosCompraTitulos,
-              &qtdClientesContaSalarioFaixaSaldo);
+              &qtdClientesAptosCompraTitulos);
 
           if (fezAtualizacao)
           {
@@ -130,7 +130,7 @@ int main()
                 listaClientesSaldoNegativo,
                 qtdClientesNegativos,
                 listaClientesAptosCompraTitulos,
-                qtdClientesContaSalarioFaixaSaldo,
+                qtdClientesAptosCompraTitulos,
                 saldoBanco);
           }
           else
@@ -168,7 +168,7 @@ int main()
             &listaClientesSaldoNegativo,
             &qtdClientesNegativos,
             &listaClientesAptosCompraTitulos,
-            &qtdClientesContaSalarioFaixaSaldo);
+            &qtdClientesAptosCompraTitulos);
         printf("\nBem-vindo, cliente!\n");
         printf("a - Acessar Conta\n");
         printf("x - Sair\n");
