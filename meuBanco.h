@@ -1,4 +1,5 @@
 /*Declarações*/
+#include <stdio.h>
 #ifndef MEU_BANCO
 #define MEU_BANCO
 
@@ -90,5 +91,10 @@ char converterMinuscula(char letra);
 void limparBuffer();
 void limparTela();
 void pausar();
+
+FILE *abrirArquivo(const char *caminho, const char *modo);
+void fecharArquivo(FILE *arquivo);
+void lerArquivo(const char *caminho);
+int gravarArquivo(const char *caminho, const char *texto, const char *modo);
 
 #endif

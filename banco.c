@@ -647,3 +647,54 @@ void pausar()
   while ((c = getchar()) != '\n' && c != EOF)
     ;
 }
+
+
+FILE *abrirArquivo(const char *caminho, const char *modo)
+{
+  FILE *arquivo = fopen(caminho, modo);
+  if (arquivo == NULL)
+  {
+    printf("\n[ERRO]: Nao foi possivel abrir o arquivo '%s'.\n", caminho);
+  }
+  return arquivo;
+}
+
+void fecharArquivo(FILE *arquivo)
+{
+  if (arquivo != NULL)
+  {
+    fclose(arquivo);
+  }
+}
+
+void lerArquivo(const char *caminho)
+{
+  FILE *arquivo = abrirArquivo(caminho, "r");
+  if (arquivo == NULL)
+  {
+    return;
+  }
+
+  char linha[256];
+  printf("\n=== CONTEUDO DE %s ===\n", caminho);
+  while (fgets(linha, sizeof(linha), arquivo) != NULL)
+  {
+    printf("%s", linha);
+  }
+  printf("\n==============================\n");
+
+  fecharArquivo(arquivo);
+}
+
+int gravarArquivo(const char *caminho, const char *texto, const char *modo)
+{
+  FILE *arquivo = abrirArquivo(caminho, modo);
+  if (arquivo == NULL)
+  {
+    return 0;
+  }
+
+  fprintf(arquivo, "%s", texto);
+  fecharArquivo(arquivo);
+  return 1;
+}

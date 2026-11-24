@@ -190,6 +190,24 @@ int main()
           int numeroConta;
           scanf("%d", &numeroConta);
           limparBuffer();
+          
+          int controleconta = 0;
+          
+          for (int i = 0; i < qtdClientes; i++)
+          {
+            if (listaClientes[i].numeroConta == numeroConta)
+            {
+              controleconta = 1;
+              break;
+            }
+          }
+
+          if (!controleconta)
+          {
+            printf("\nConta %d nao encontrada!\n", numeroConta);
+            pausar();
+            break;
+          }
 
           int achouNegativado = 0;
 
