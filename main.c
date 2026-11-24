@@ -4,10 +4,12 @@
 
 Cliente clientesTeste[] =
   {
-    {"Ana Souza",
+    {
+      "Ana Souza",
       1001,
       0,
       2,
+      3,
       {
         {CONTA_CORRENTE, 500.00f},
         {CONTA_POUPANCA, 1000.00f}
@@ -26,6 +28,7 @@ Cliente clientesTeste[] =
       1002,
       0,
       1,
+      5,
       {{CONTA_CORRENTE, -200.00f}},
       {
         {'D', 500.00f},
@@ -41,6 +44,7 @@ Cliente clientesTeste[] =
       1003,
       0,
       1,
+      5,
       {{CONTA_SALARIO, 1000.00f}},
       {
         {'D', 1000.00f},
@@ -100,55 +104,58 @@ int main()
     //     printf("Fez Emprestimo: %s\n", nomeFezEmprestimo(listaClientes[i].fezEmprestimo));
     //   }
     // }
-    printf("a - Abrir Banco\n");
+    printf("\na - Abrir Banco\n");
     printf("c - Consultar Historico\n");
     printf("s - Sair\n");
     printf("\nEscolha uma opcao: ");
     scanf(" %c", &opcao);
     switch (opcao)
     {
-    case 'a':
-      printf("\nAbrindo banco...\n");
-      abrirBanco(&listaClientes, &qtdClientes);
-      break;
-    case 'c':
-      int fezAtualizacao = atualizarHistoricos(
-        listaClientes,
-        qtdClientes,
-        &listaClientesAptosEmprestimo,
-        &qtdClientesAptosEmprestimo,
-        &listaClientesSaldoNegativo,
-        &qtdClientesNegativos,
-        &listaClientesAptosCompraTitulos,
-        &qtdClientesAptosCompraTitulos
-      );
-
-      if(fezAtualizacao)
+      case 'a':
+        printf("\nAbrindo banco...\n");
+        abrirBanco(&listaClientes, &qtdClientes);
+        break;
+      case 'c':
       {
-        float saldoBanco = calcularSaldoBanco(listaClientes, qtdClientes);
-        emitirHistorico(
+        int fezAtualizacao = atualizarHistoricos(
+          listaClientes,
           qtdClientes,
-          listaClientesAptosEmprestimo,
-          qtdClientesAptosEmprestimo,
-          listaClientesSaldoNegativo,
-          qtdClientesNegativos,
-          listaClientesAptosCompraTitulos,
-          qtdClientesAptosCompraTitulos,
-          saldoBanco
+          &listaClientesAptosEmprestimo,
+          &qtdClientesAptosEmprestimo,
+          &listaClientesSaldoNegativo,
+          &qtdClientesNegativos,
+          &listaClientesAptosCompraTitulos,
+          &qtdClientesAptosCompraTitulos
         );
-      }
-      else
-      {
-        printf("\n[ERRO]: Nao ha clientes cadastrados!\n");
+
+        if(fezAtualizacao)
+        {
+          float saldoBanco = calcularSaldoBanco(listaClientes, qtdClientes);
+          emitirHistorico(
+            qtdClientes,
+            listaClientesAptosEmprestimo,
+            qtdClientesAptosEmprestimo,
+            listaClientesSaldoNegativo,
+            qtdClientesNegativos,
+            listaClientesAptosCompraTitulos,
+            qtdClientesAptosCompraTitulos,
+            saldoBanco
+          );
+        }
+        else
+        {
+          printf("\n[ERRO]: Nao ha clientes cadastrados!\n");
+        }
+        printf("\n=== ENCERRANDO CONSULTA ===\n");
         printf("Voltando para o menu inicial...\n");
+        break;
       }
-      break;
-    case 's':
-      printf("Fechando o banco\n");
-      break;
-    default:
-      printf("Opcao invalida!\n");
-      break;
+      case 's':
+        printf("Fechando o banco\n");
+        break;
+      default:
+        printf("Opcao invalida!\n");
+        break;
     }
   } while (opcao != 's');
   free(listaClientesAptosEmprestimo);
