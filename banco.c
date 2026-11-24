@@ -81,12 +81,12 @@ void emitirHistorico(
   printf("\n== Saldo Total do banco ==\n");
   printf("%d | R$ %.2f\n", qtdClientes, saldoBanco);
 
-  printf("\n== Clientes Aptos a Empréstimos ==\n");
+  printf("\n== Clientes Aptos a Emprestimos ==\n");
 
   for (int i = 0; i < qtdClientesAptosEmprestimo; i++)
   {
     printf(
-        "%s|%d-0%d|R$ %.2f\n",
+        "%s | %d-0%d | R$ %.2f\n",
         listaClientesAptosEmprestimo[i].nome,
         listaClientesAptosEmprestimo[i].numeroConta,
         CONTA_POUPANCA,
@@ -97,7 +97,7 @@ void emitirHistorico(
   for (int i = 0; i < qtdClientesNegativos; i++)
   {
     printf(
-      "%s|%d-0%d|R$ %.2f\n",
+      "%s | %d-0%d | R$ %.2f\n",
       listaClientesSaldoNegativo[i].nome,
       listaClientesSaldoNegativo[i].numeroConta,
       CONTA_CORRENTE,
@@ -105,19 +105,19 @@ void emitirHistorico(
     );
   }
 
-  printf("== Clientes Aptos a Compra de Títulos ==\n");
+  printf("\n== Clientes Aptos a Compra de Titulos ==\n");
 
   for (int i = 0; i < qtdClientesAptosCompraTitulos; i++)
   {
     printf(
-        "%s|%d-0%d|R$ %.2f\n",
+        "%s | %d-0%d | R$ %.2f\n",
         listaClientesAptosCompraTitulos[i].nome,
         listaClientesAptosCompraTitulos[i].numeroConta,
         CONTA_SALARIO,
         buscaSaldoClientePorTipo(listaClientesAptosCompraTitulos[i], CONTA_SALARIO));
   }
 
-  printf("== Clientes Contemplado no Sorteio ==\n");
+  printf("\n== Cliente Contemplado no Sorteio ==\n");
 }
 
 int validarTipoConta(TipoConta tipo)
