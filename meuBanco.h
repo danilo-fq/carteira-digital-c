@@ -72,7 +72,6 @@ int validarTiposConta(Cliente cliente);
 int validarTipoConta(TipoConta tipo);
 int podeFazerEmprestimo(Cliente cliente);
 int podeComprarTituloCapitalizacao(Cliente cliente);
-// int calculaQtdClientesCondicao(Cliente *listaClientes, int qtdClientes, TipoCondicao condicao);
 
 float calcularLimiteEmprestimo(Cliente cliente);
 float calcularSaldoBanco(Cliente *listaClientes, int qtdClientes);
@@ -89,5 +88,7 @@ int ehPrimo(int);
 char converterMinuscula(char letra);
 
 void limparBuffer();
+void limparTela();
+void pausar();
 
 #endif
