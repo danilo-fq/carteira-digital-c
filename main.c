@@ -84,7 +84,7 @@ int main()
   {
     int opcaoMenuPrincipal;
     printf("\n=== MENU PRINCIPAL ===\n");
-    printf("1 - Funcionário\n");
+    printf("1 - Funcionario\n");
     printf("2 - Cliente\n");
     printf("3 - Sair\n");
     printf("Escolha uma opcao: ");
@@ -153,7 +153,7 @@ int main()
           printf("Opcao invalida!\n");
           break;
         }
-      } while (opcaoFuncionario != 's');
+      } while (opcaoFuncionario != 'x');
     }
     else if (opcaoMenuPrincipal == 2)
     {
@@ -226,7 +226,7 @@ int main()
           break;
         }
 
-      } while (opcaoCliente != 's');
+      } while (opcaoCliente != 'x');
     }
     else if (opcaoMenuPrincipal == 3)
     {
