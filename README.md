@@ -110,7 +110,7 @@ juntos; `meuBanco.h` é o contrato entre eles.
 ### Linux
 
 ```bash
-gcc main.c banco.c -o carteira
+gcc main.c banco.c -o build/carteira
 ```
 
 ### Windows (PowerShell / CMD)
@@ -124,11 +124,11 @@ gcc main.c banco.c -o build/carteira.exe
 ## ▶️ Execução
 
 ```bash
-./carteira          # Linux
+./build/carteira          # Linux
 ```
 
 ```powershell
-.\carteira.exe      # Windows
+.\build\carteira.exe      # Windows
 ```
 
 ### Menu principal
@@ -157,7 +157,7 @@ x - Sair
 
 > O programa inicia já carregado com **clientes de teste** definidos em
 > `main.c` (array `clientesTeste`), úteis para exercitar relatório e sorteio
-> sem cadastrar nada. Remova esse bloco quando quiser iniciar com o banco
+> sem cadastrar nada. Remover esse bloco para iniciar com o banco
 > vazio.
 
 ---
