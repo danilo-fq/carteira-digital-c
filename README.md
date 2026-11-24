@@ -3,20 +3,19 @@
 Simulação de uma carteira digital / banco em linguagem C, desenvolvida como
 exercício da disciplina de **Algoritmos** (P2 — UNIPE).
 
-> 🚧 **Status: em desenvolvimento.**
-> O programa já compila e executa, mas ainda não implementa todas as
-> funcionalidades previstas no enunciado. Veja a seção
-> [O que falta](#-o-que-falta).
-
 ---
 
 ## 📋 Sobre o projeto
 
 O programa simula um banco com `n` clientes. Cada cliente possui nome, número
-de conta (começando em `1000`), até **2 contas** e o histórico das **últimas 5
-transações**.
+de conta (começando em `1000`), até **2 contas** e um histórico das **últimas
+5 transações**.
 
-As regras de negócio são:
+A aplicação tem dois perfis de acesso: **Funcionário** (abre o banco, cadastra
+clientes, emite relatório e efetua o sorteio) e **Cliente** (acessa a conta e
+verifica se está negativado).
+
+### Regras de negócio
 
 | Regra | Condição |
 |---|---|
@@ -25,17 +24,26 @@ As regras de negócio são:
 | **Título de capitalização** | Ter conta **salário** com saldo entre **R$ 1.000,00 e R$ 1.500,00** |
 | **Saldo negativo** | Conta **corrente** com saldo abaixo de zero |
 | **Contas incompatíveis** | Conta corrente e conta salário **não** podem coexistir no mesmo cliente |
-| **Número de contas** | até 2 contas, obrigatoriamente de tipos diferentes |
+| **Número de contas** | 1 ou 2 contas, obrigatoriamente de tipos diferentes |
 
-### Saída do relatório
+### Sorteio
 
-Ao consultar o histórico, o programa exibe:
+Participam do sorteio os clientes com `comprouTitulo == 1`. Entre eles, os até
+**5** com maior saldo na conta salário disputam. Para cada participante é
+gerada uma aposta aleatória de 1 a 15; calcula-se a **soma de Fibonacci** até
+essa posição e, se o resultado for **primo**, o participante concorre. Vence
+quem obtiver a maior soma prima. O contemplado recebe um prêmio de
+`10 × (saldo da conta salário)`, creditado na própria conta salário.
+
+### Relatório
+
+Ao emitir o relatório, o programa exibe:
 
 1. Saldo total do banco;
-2. Clientes aptos a empréstimo;
+2. Clientes aptos a empréstimo (com o limite calculado);
 3. Clientes com saldo negativo na conta corrente;
 4. Clientes aptos a compra de títulos;
-5. Cliente contemplado no sorteio.
+5. Cliente contemplado no sorteio (se o sorteio já tiver sido efetuado).
 
 ---
 
@@ -43,11 +51,10 @@ Ao consultar o histórico, o programa exibe:
 
 ```
 carteira-digital-c/
-├── main.c        # Ponto de entrada, menu principal e clientes de teste
-├── banco.c       # Implementação das regras de negócio
-├── meuBanco.h    # Structs, enums e protótipos (contrato entre main.c e banco.c)
-├── enunciado.c   # Enunciado do exercício (apenas comentário, não compila nada)
-├── build/        # Artefatos de compilação (ignorado pelo Git)
+├── main.c                       # Ponto de entrada, menus e clientes de teste
+├── banco.c                      # Implementação das regras de negócio e do sorteio
+├── meuBanco.h                   # Structs, enums e protótipos (contrato entre .c)
+├── enunciado.c                  # Enunciado do exercício (comentário, não compila)
 ├── .gitignore
 └── README.md
 ```
@@ -55,10 +62,16 @@ carteira-digital-c/
 ### Estruturas de dados
 
 ```c
+typedef enum {
+  EMPRESTIMO = 1,
+  SALDO_NEGATIVO,
+  CONTA_SALARIO_FAIXA_SALDO,
+} TipoCondicao;
+
 typedef enum { CONTA_CORRENTE = 1, CONTA_SALARIO, CONTA_POUPANCA } TipoConta;
 
 typedef struct {
-  char tipoTransacao;   // 'D' = depósito, 'S' = saque // 'T' = Titulo de capitalização // 'E' = Emprestimo
+  char tipoTransacao;   // 'D' depósito, 'S' saque, 'T' título, 'E' empréstimo
   float valor;
 } Transacao;
 
@@ -73,40 +86,38 @@ typedef struct {
   int fezEmprestimo;
   int qtdContas;
   int qtdTransacoes;
+  int comprouTitulo;
+  float premioSorteio;
   Conta contas[2];
   Transacao historico[5];
 } Cliente;
 ```
 
-> ⚠️ **Atenção ao inicializar um `Cliente`:** a ordem dos campos importa.
-> `qtdTransacoes` fica **entre** `qtdContas` e `contas`. Omitir esse campo
-> desloca todos os inicializadores seguintes e gera erros como
-> *"braces around scalar initializer"*.
+> ⚠️ **Atenção ao inicializar um `Cliente` por chaves:** a ordem dos campos
+> importa. Os campos escalares (`numeroConta`, `fezEmprestimo`, `qtdContas`,
+> `qtdTransacoes`, `comprouTitulo`, `premioSorteio`) vêm **antes** de `contas`
+> e `historico`. Omitir ou trocar a ordem desloca os inicializadores seguintes
+> e gera erros como *"braces around scalar initializer"*. Veja os clientes de
+> teste em `main.c` como referência.
 
 ---
 
 ## 🔨 Compilação
 
-Todos os artefatos de compilação devem ir para a pasta **`build/`**, que já
-está listada no `.gitignore` (assim nenhum executável vai parar no
-repositório).
+Requer um compilador C (GCC recomendado). `main.c` e `banco.c` são compilados
+juntos; `meuBanco.h` é o contrato entre eles.
 
 ### Linux
 
 ```bash
-mkdir -p build
 gcc main.c banco.c -o build/carteira
 ```
 
 ### Windows (PowerShell / CMD)
 
 ```powershell
-mkdir build
 gcc main.c banco.c -o build/carteira.exe
 ```
-
-> O GCC **não** cria diretórios. Se `build/` não existir, a compilação falha
-> com `No such file or directory`.
 
 ---
 
@@ -123,36 +134,31 @@ gcc main.c banco.c -o build/carteira.exe
 ### Menu principal
 
 ```
-a - Abrir Banco
-c - Consultar Historico
-s - Sair
+1 - Funcionario
+2 - Cliente
+3 - Sair
 ```
 
-- **`a`** — abre o menu do banco, onde é possível cadastrar clientes
-  (`c`) ou voltar ao menu principal (`s`).
-- **`c`** — recalcula as listas de clientes (aptos a empréstimo, saldo
-  negativo, aptos a título) e imprime o relatório.
-- **`s`** — encerra o programa.
+**Funcionário:**
 
----
+```
+a - Abrir Banco        # cadastra clientes (realloc da lista)
+r - Emitir Relatorio   # recalcula as listas e imprime o relatório
+s - Efetuar Sorteio    # roda o sorteio entre quem comprou título
+x - Sair
+```
 
-## 🚧 O que falta
+**Cliente:**
 
-Itens ainda não implementados ou incompletos:
+```
+a - Acessar Conta      # informa o número da conta e avisa se está negativado
+x - Sair
+```
 
-- [ ] **Movimentações financeiras** — não há depósito, saque nem contratação
-      de empréstimo/título pela interface. O histórico é apenas populado pelos
-      clientes de teste.
-- [ ] **Sorteio** — a seção "Cliente Contemplado no Sorteio" é impressa, mas
-      nenhum cliente é sorteado.
-- [ ] **Persistência em arquivo** — as funções de arquivo estão comentadas em
-      `meuBanco.h`; nada é salvo entre execuções.
-- [ ] **Atualização do histórico** — `qtdTransacoes` não é atualizado após
-      operações; `historico` é um buffer circular ainda não implementado.
-- [ ] **`fezEmprestimo`** — o campo existe e é validado, mas nunca é alterado
-      para `1` (falta a operação de contratar empréstimo).
-- [ ] **Limpeza de tela** — `system("cls")` / `system("clear")` ainda não foi
-      aplicado.
+> O programa inicia já carregado com **clientes de teste** definidos em
+> `main.c` (array `clientesTeste`), úteis para exercitar relatório e sorteio
+> sem cadastrar nada. Remover esse bloco para iniciar com o banco
+> vazio.
 
 ---
 
@@ -160,8 +166,23 @@ Itens ainda não implementados ou incompletos:
 
 - O código-fonte evita acentos nas strings de saída (`Emprestimos`,
   `Titulos`) para não quebrar em terminais com encoding diferente.
-- `main.c` e `banco.c` são compilados juntos; `meuBanco.h` funciona como
-  contrato único entre eles.
+- A lista de clientes e as listas derivadas (aptos a empréstimo, saldo
+  negativo, aptos a título) são alocadas dinamicamente e liberadas ao sair
+  pela opção `3` do menu principal.
+- `atualizarHistoricos` recalcula as três listas derivadas a cada relatório e
+  a cada acesso do cliente.
+- **Limpeza de tela** entre os menus via `limparTela()`, que seleciona o
+  comando por sistema em tempo de compilação (`system("cls")` no Windows,
+  `system("clear")` nos demais, através de `#ifdef _WIN32`). A tela é limpa no
+  topo de cada menu (principal, funcionário e cliente). Após ações cujo
+  resultado precisa ser lido (relatório, sorteio, acesso à conta), `pausar()`
+  aguarda o Enter do usuário antes da próxima limpeza. Os `scanf` que precedem
+  uma pausa são seguidos de `limparBuffer()` para que o `\n` residual não faça
+  a pausa ser ignorada.
+- A persistência em arquivo foi prevista (protótipos comentados em
+  `meuBanco.h`), mas ainda **não** está implementada; nada é salvo entre
+  execuções.
 - Os protótipos no header devem sempre acompanhar os nomes definidos em
   `banco.c` — nomes divergentes geram `implicit declaration of function`,
   que é **erro** nas versões recentes do GCC.
+```
