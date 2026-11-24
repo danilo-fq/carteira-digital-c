@@ -29,6 +29,8 @@ typedef struct {
   int fezEmprestimo;
   int qtdContas;
   int qtdTransacoes;
+  int comprouTitulo;
+  float premioSorteio;
   Conta contas[2];
   Transacao historico[5];
 } Cliente;
@@ -36,6 +38,7 @@ typedef struct {
 void abrirBanco(Cliente **listaClientes, int *qtdClientes);
 
 void emitirHistorico(
+  Cliente *listaClientes,
   int qtdClientes,
   Cliente *listaClientesAptosEmprestimo,
   int qtdClientesAptosEmprestimo,
@@ -43,7 +46,8 @@ void emitirHistorico(
   int qtdClientesNegativos,
   Cliente *listaClientesAptosCompraTitulos,
   int qtdClientesAptosCompraTitulos,
-  float saldoBanco
+  float saldoBanco,
+  int realizouSorteio
 );
 
 int atualizarHistoricos(
@@ -56,6 +60,8 @@ int atualizarHistoricos(
   Cliente **listaClientesAptosCompraTitulos,
   int *qtdClientesAptosCompraTitulos
 );
+
+void efetuarSorteio(Cliente *listaClientes, int qtdClientes);
 
 // void fecharArquivo(FILE *arquivo);
 // FILE *abrirArquivo(char *caminho, char *modo);
@@ -73,9 +79,14 @@ float calcularSaldoBanco(Cliente *listaClientes, int qtdClientes);
 float buscaSaldoClientePorTipo(Cliente cliente, TipoConta tipo);
 
 void cadastrarCliente(Cliente *listaClientes, int *qtdClientes, int indiceAtual);
+void ordernarOrdemDecrescenteSaldoContaSalario(Cliente *listaClientes, int qtdParticipantes, int *listaIndicesParticipantes);
 
-char *nomeTipoConta(TipoConta tipo);
-char *nomeFezEmprestimo(int valor);
+int fibonacci(int);
+int somaFibonacci(int);
+int ehPrimo(int);
+
+
+char converterMinuscula(char letra);
 
 void limparBuffer();
 

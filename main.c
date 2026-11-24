@@ -1,52 +1,41 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include "meuBanco.h"
 
 // remover testes manuais no final
 Cliente clientesTeste[] =
     {
-        {"Ana Souza",
-         1001,
-         0,
-         2,
-         3,
-         {{CONTA_CORRENTE, 500.00f},
-          {CONTA_POUPANCA, 1000.00f}},
-         {{'D', 200.00f},
-          {'S', 50.00f},
-          {'D', 300.00f},
-          {'\0', 0.0f},
-          {'\0', 0.0f}}},
+        // 1) Elegivel - salario 1500 - comprou titulo COM registro 'T' no historico
+        {"Ana Souza", 1001, 0, 1, 3, 1, 0.0f, {{CONTA_SALARIO, 1500.00f}}, {{'D', 200.00f}, {'T', 300.00f}, {'S', 50.00f}, {'\0', 0.0f}, {'\0', 0.0f}}},
 
-        {"Bruno Lima",
-         1002,
-         0,
-         1,
-         5,
-         {{CONTA_CORRENTE, -200.00f}},
-         {{'D', 500.00f},
-          {'S', 700.00f},
-          {'D', 100.00f},
-          {'S', 50.00f},
-          {'D', 80.00f}}},
+        // 2) Elegivel - salario 1400 + poupanca - comprou titulo COM registro 'T'
+        {"Bruno Lima", 1002, 0, 2, 5, 1, 0.0f, {{CONTA_SALARIO, 1400.00f}, {CONTA_POUPANCA, 800.00f}}, {{'D', 500.00f}, {'S', 700.00f}, {'T', 250.00f}, {'E', 1000.00f}, {'D', 80.00f}}},
 
-        {"Carla Mendes",
-         1003,
-         0,
-         1,
-         5,
-         {{CONTA_SALARIO, 1000.00f}},
-         {{'D', 1000.00f},
-          {'S', 200.00f},
-          {'D', 300.00f},
-          {'S', 100.00f},
-          {'D', 50.00f}}}};
+        // 3) Elegivel - salario 1300 - comprou titulo COM registro 'T'
+        {"Carla Mendes", 1003, 0, 1, 5, 1, 0.0f, {{CONTA_SALARIO, 1300.00f}}, {{'D', 1000.00f}, {'S', 200.00f}, {'T', 200.00f}, {'S', 100.00f}, {'D', 50.00f}}},
+
+        // 4) Elegivel - salario 1200 - comprou titulo mas SEM registro 'T' no historico
+        //    (prova que a elegibilidade vem do CAMPO comprouTitulo, nao do historico)
+        {"Diego Alves", 1004, 0, 1, 4, 1, 0.0f, {{CONTA_SALARIO, 1200.00f}}, {{'D', 600.00f}, {'S', 150.00f}, {'D', 250.00f}, {'S', 75.00f}, {'\0', 0.0f}}},
+
+        // 5) Elegivel - salario 1100 - comprou titulo COM registro 'T'
+        {"Elisa Rocha", 1005, 0, 1, 3, 1, 0.0f, {{CONTA_SALARIO, 1100.00f}}, {{'D', 400.00f}, {'D', 700.00f}, {'T', 150.00f}, {'\0', 0.0f}, {'\0', 0.0f}}},
+
+        // 6) Elegivel - salario FORA DA FAIXA (2000) mas comprouTitulo=1
+        //    (prova que "ter adquirido basta, mesmo fora da faixa")
+        {"Felipe Nunes", 1006, 0, 1, 3, 1, 0.0f, {{CONTA_SALARIO, 2000.00f}}, {{'D', 2000.00f}, {'T', 300.00f}, {'S', 300.00f}, {'\0', 0.0f}, {'\0', 0.0f}}},
+
+        // 7) NAO elegivel - comprouTitulo = 0 (deve ser filtrado do sorteio)
+        //    tem emprestimo 'E' no historico
+        {"Gabriela Dias", 1007, 0, 2, 5, 0, 0.0f, {{CONTA_CORRENTE, -200.00f}, {CONTA_POUPANCA, 500.00f}}, {{'D', 500.00f}, {'S', 700.00f}, {'E', 1250.00f}, {'S', 50.00f}, {'D', 80.00f}}}};
 
 int qtdClientesTeste =
     sizeof(clientesTeste) / sizeof(clientesTeste[0]);
 
 int main()
 {
+  srand(time(NULL));
   Cliente *listaClientes = NULL;
   Cliente *listaClientesAptosEmprestimo = NULL;
   Cliente *listaClientesSaldoNegativo = NULL;
@@ -57,6 +46,7 @@ int main()
   int qtdClientesAptosCompraTitulos = 0;
   char opcaoFuncionario = 's';
   char opcaoCliente = 's';
+  int realizouSorteio = 0;
 
   // remover testes manuais no final
   qtdClientes = qtdClientesTeste;
@@ -84,10 +74,10 @@ int main()
   {
     int opcaoMenuPrincipal;
     printf("\n=== MENU PRINCIPAL ===\n");
-    printf("1 - Funcionário\n");
+    printf("1 - Funcionario\n");
     printf("2 - Cliente\n");
     printf("3 - Sair\n");
-    printf("Escolha uma opcao: ");
+    printf("\nEscolha uma opcao: ");
     scanf("%d", &opcaoMenuPrincipal);
 
     if (opcaoMenuPrincipal == 1)
@@ -97,18 +87,19 @@ int main()
       do
       {
         printf("\na - Abrir Banco\n");
-        printf("c - Emitir Relatorio\n");
+        printf("r - Emitir Relatorio\n");
         printf("s - Efetuar Sorteio\n");
         printf("x - Sair\n");
         printf("\nEscolha uma opcao: ");
         scanf(" %c", &opcaoFuncionario);
+        opcaoFuncionario = converterMinuscula(opcaoFuncionario);
         switch (opcaoFuncionario)
         {
         case 'a':
           printf("\nAbrindo banco...\n");
           abrirBanco(&listaClientes, &qtdClientes);
           break;
-        case 'c':
+        case 'r':
         {
           int fezAtualizacao = atualizarHistoricos(
               listaClientes,
@@ -124,6 +115,7 @@ int main()
           {
             float saldoBanco = calcularSaldoBanco(listaClientes, qtdClientes);
             emitirHistorico(
+                listaClientes,
                 qtdClientes,
                 listaClientesAptosEmprestimo,
                 qtdClientesAptosEmprestimo,
@@ -131,7 +123,8 @@ int main()
                 qtdClientesNegativos,
                 listaClientesAptosCompraTitulos,
                 qtdClientesAptosCompraTitulos,
-                saldoBanco);
+                saldoBanco,
+                realizouSorteio);
           }
           else
           {
@@ -144,6 +137,10 @@ int main()
         case 's':
         {
           printf("\n== REALIZANDO SORTEIO ==\n");
+          efetuarSorteio(listaClientes, qtdClientes);
+          realizouSorteio = 1;
+          printf("\n=== ENCERRANDO SORTEIO ===\n");
+          printf("Voltando para o menu inicial...\n");
           break;
         }
         case 'x':
@@ -153,7 +150,7 @@ int main()
           printf("Opcao invalida!\n");
           break;
         }
-      } while (opcaoFuncionario != 's');
+      } while (opcaoFuncionario != 'x');
     }
     else if (opcaoMenuPrincipal == 2)
     {
@@ -170,10 +167,11 @@ int main()
             &listaClientesAptosCompraTitulos,
             &qtdClientesAptosCompraTitulos);
         printf("\nBem-vindo, cliente!\n");
-        printf("a - Acessar Conta\n");
+        printf("\na - Acessar Conta\n");
         printf("x - Sair\n");
         printf("\nEscolha uma opcao: ");
         scanf(" %c", &opcaoCliente);
+        opcaoCliente = converterMinuscula(opcaoCliente);
         switch (opcaoCliente)
         {
         case 'a':
@@ -226,7 +224,7 @@ int main()
           break;
         }
 
-      } while (opcaoCliente != 's');
+      } while (opcaoCliente != 'x');
     }
     else if (opcaoMenuPrincipal == 3)
     {
